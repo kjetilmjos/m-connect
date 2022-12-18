@@ -1,0 +1,24 @@
+name: "m-connect"
+description: "This addon connects to the m-cloud to provide remote access and backup"
+version: "1.0.2"
+slug: "m_connect"
+init: false
+url: https://mjos.org
+hassio_api: true
+privileged:
+  - NET_ADMIN
+map:
+  - config:rw
+#devices:
+#  - /dev/net/tun
+#host_network: true
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+
+options:
+  server:
+    host: myautomatedhome.duckdns.org
