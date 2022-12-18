@@ -23,7 +23,11 @@ options:
   server:
     host: my.VPS.org
     port: 51820
+    publickey: inputpublickeyfrommaster
+    tunnelip: inputtunnelIP
 schema:
   server:
-    host: str
-    port: int
+    host: url
+    port: port
+    publickey: str
+    tunnelip: str
