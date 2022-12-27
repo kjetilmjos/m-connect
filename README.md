@@ -1,6 +1,7 @@
 # m-connect
 
-Remote connection client for home-assistant
+Remote connection client for home-assistant. Based on the wireguard addon developed by frenc
+https://github.com/hassio-addons/addon-wireguard
 
 # Install instructions
 

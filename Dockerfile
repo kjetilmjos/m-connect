@@ -5,9 +5,11 @@ FROM $BUILD_FROM
 RUN \
   apk add --no-cache \
     wireguard-tools
-    
-# Copy data for add-on
-COPY run.sh /
-RUN chmod a+x /run.sh
 
-CMD [ "/run.sh" ]
+# Copy data for add-on
+#COPY run.sh /
+#RUN chmod a+x /run.sh
+
+#CMD [ "/run.sh" ]
+
+COPY rootfs /

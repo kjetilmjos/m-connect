@@ -1,6 +1,6 @@
 name: "m-connect"
 description: "This addon connects to the m-cloud to provide remote access and backup"
-version: "1.0.4"
+version: "1.0.12"
 slug: "m_connect"
 init: false
 url: https://mjos.org
@@ -9,6 +9,7 @@ privileged:
   - NET_ADMIN
 map:
   - config:rw
+  - ssl:rw
 #devices:
 #  - /dev/net/tun
 #host_network: true
@@ -27,7 +28,7 @@ options:
     tunnelip: inputtunnelIP
 schema:
   server:
-    host: url
+    host: str
     port: port
     publickey: str
     tunnelip: str
