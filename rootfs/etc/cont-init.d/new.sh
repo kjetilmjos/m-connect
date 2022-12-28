@@ -8,6 +8,8 @@ declare clientname
 declare peer_private_key
 declare peer_public_key
 declare tunnelip
+declare host
+declare port
 
 clientname="m-connect"
 config_dir="/ssl/wireguard/${clientname}"
@@ -17,6 +19,14 @@ if ! bashio::fs.directory_exists '/ssl/wireguard'; then
         bashio::exit.nok "Could not create wireguard storage folder!"
 fi
 
+if ! bashio::fs.directory_exists '/etc2'; then
+    mkdir -p /etc2 ||
+        bashio::exit.nok "Could not create wireguard config directory!"
+fi
+if ! bashio::fs.directory_exists '/etc/wireguard'; then
+    mkdir -p /etc/wireguard ||
+        bashio::exit.nok "Could not create wireguard config directory!"
+fi
 # Create directory for storing client configuration
 mkdir -p "${config_dir}" ||
     bashio::exit.nok "Failed creating client folder for ${clientname}"
@@ -47,6 +57,12 @@ if bashio::config.has_value "server.tunnelip"; then
     tunnelip=$(bashio::config "server.tunnelip")
 fi
 
+if bashio::config.has_value "server.host"; then
+    host=$(bashio::config "server.host")
+fi
+if bashio::config.has_value "server.port"; then
+    port=$(bashio::config "server.port")
+fi
  {
 echo "[Interface]"
 echo "Address = ${tunnelip}"
@@ -55,12 +71,12 @@ echo "DNS = 8.8.8.8"
 echo ""
 echo "[Peer]"
 echo "PublicKey = ${peer_public_key}"
-echo "AllowedIPs = 0.0.0.0/0"
-echo "Endpoint = 172.16.0.12:51820"
+echo "AllowedIPs = 10.50.60.0/24"
+echo "Endpoint = ${host}:${port}"
 echo "PersistentKeepalive = 25"
- } > "${config_dir}/client.conf"
+ } > "${config_dir}/${clientname}.conf"
 
-
+cp "${config_dir}/${clientname}.conf" "/etc/wireguard/${clientname}.conf"
 # Store client name for the status API based on public key
 filename=$(sha1sum <<< "${peer_public_key}" | awk '{ print $1 }')
 echo -n "${clientname}" > "/var/lib/wireguard/${filename}"

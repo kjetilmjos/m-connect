@@ -34,6 +34,11 @@ if ! bashio::fs.directory_exists '/ssl/wireguard'; then
         bashio::exit.nok "Could not create wireguard storage folder!"
 fi
 
+if ! bashio::fs.directory_exists '/etc/wireguard'; then
+    mkdir -p /etc/wireguard ||
+        bashio::exit.nok "Could not create wireguard config directory!"
+fi
+
 # Get interface and config file location
 interface="wg0"
 if bashio::config.has_value "server.interface"; then
