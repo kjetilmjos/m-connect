@@ -11,6 +11,8 @@ declare publickey
 declare tunnelip
 declare host
 declare port
+declare post_down
+declare post_up
 
 clientname="m-connect"
 config_dir="/data/m-connect"
@@ -73,13 +75,17 @@ if [[ $(</proc/sys/net/ipv4/ip_forward) -eq 0 ]]; then
     bashio::log.warning "Please consult the add-on documentation on how"
     bashio::log.warning "to resolve this."
     bashio::log.warning
-
+    # Set fake placeholders for Up & Down commands
+    post_up=""
+    post_down=""
 fi
 # Write full config file.
 # The post up lines are needed for the addon to access Home Assistant core container
- {
-echo "PostUp = iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE"
-echo "PostDown = iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE"
+post_up="iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE"
+post_down="iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE"
+{
+echo "PostUp = ${post_up}"
+echo "PostDown = ${post_down}"
 echo "[Interface]"
 echo "Address = ${tunnelip}"
 echo "PrivateKey = ${peer_private_key}"
@@ -90,7 +96,7 @@ echo "AllowedIPs = 10.50.60.0/24"
 echo "Endpoint = ${host}:${port}"
 echo "PersistentKeepalive = 25"
 echo ""
- } > "${config_dir}/${clientname}.conf"
+} > "${config_dir}/${clientname}.conf"
 # Store client name for the status API based on public key
 #filename=$(sha1sum <<< "${peer_public_key}" | awk '{ print $1 }')
 
