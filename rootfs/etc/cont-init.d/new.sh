@@ -13,7 +13,7 @@ declare host
 declare port
 
 clientname="m-connect"
-config_dir="/etc/wireguard"
+config_dir="/data/m-connect"
 #config_dir="/etc/wireguard/${clientname}"
 
 if ! bashio::fs.directory_exists '/etc/wireguard'; then
@@ -21,9 +21,10 @@ if ! bashio::fs.directory_exists '/etc/wireguard'; then
         bashio::exit.nok "Could not create wireguard folder!"
 fi
 
-# Create directory for storing client configuration
-#mkdir -p "${config_dir}" ||
-#    bashio::exit.nok "Failed creating client folder for ${clientname}"
+if ! bashio::fs.directory_exists "${config_dir}"; then
+    mkdir -p ${config_dir} ||
+        bashio::exit.nok "Could not create persistent storage folder for m-connect!"
+fi
 
 # Status API Storage
 if ! bashio::fs.directory_exists '/var/lib/wireguard'; then
@@ -31,8 +32,7 @@ if ! bashio::fs.directory_exists '/var/lib/wireguard'; then
         || bashio::exit.nok "Could not create status API storage folder"
 fi
 
-# If a public key is not provided, try get a private key from disk
-# or generate one if needed.
+# If private key not exists create a new one.
 if ! bashio::fs.file_exists "${config_dir}/private_key"; then
     umask 077 || bashio::exit.nok "Could not set a proper umask"
     wg genkey > "${config_dir}/private_key" ||
@@ -40,14 +40,14 @@ if ! bashio::fs.file_exists "${config_dir}/private_key"; then
 fi
 peer_private_key=$(<"${config_dir}/private_key")
 
-# Get the public key
+# Get the public key if not exists
 if ! bashio::fs.file_exists "${config_dir}/public_key"; then
     peer_public_key=""
     bashio::var.has_value "${peer_private_key}";
     peer_public_key=$(wg pubkey <<< "${peer_private_key}")
     echo "$peer_public_key" > "${config_dir}/public_key"
 fi
-
+# Get config input from addon UI
 if bashio::config.has_value "server.publickey"; then
     publickey=$(bashio::config "server.publickey")
 fi
@@ -61,6 +61,7 @@ fi
 if bashio::config.has_value "server.port"; then
     port=$(bashio::config "server.port")
 fi
+# Write full config file
  {
 echo "[Interface]"
 echo "Address = ${tunnelip}"
@@ -74,7 +75,26 @@ echo "Endpoint = ${host}:${port}"
 echo "PersistentKeepalive = 25"
  } > "${config_dir}/${clientname}.conf"
 
-#cp "${config_dir}/${clientname}.conf" "/etc/wireguard/${clientname}.conf"
+# IP forwarding warning
+if [[ $(</proc/sys/net/ipv4/ip_forward) -eq 0 ]]; then
+    bashio::log.warning
+    bashio::log.warning "IP forwarding is disabled on the host system!"
+    bashio::log.warning "You can still use WireGuard to access Hass.io,"
+    bashio::log.warning "however, you cannot access your home network or"
+    bashio::log.warning "the internet via the VPN tunnel."
+    bashio::log.warning
+    bashio::log.warning "Please consult the add-on documentation on how"
+    bashio::log.warning "to resolve this."
+    bashio::log.warning
+fi
+
 # Store client name for the status API based on public key
-filename=$(sha1sum <<< "${peer_public_key}" | awk '{ print $1 }')
-echo -n "${clientname}" > "/var/lib/wireguard/${filename}"
+#filename=$(sha1sum <<< "${peer_public_key}" | awk '{ print $1 }')
+
+# Move config file to /etc/wireguard if the file does not exist
+if ! bashio::fs.file_exists '/etc/wireguard/m-connect.conf'; then
+    cp "${config_dir}/${clientname}.conf" "/etc/wireguard/${clientname}.conf" ||
+        bashio::exit.nok "Unable to move config file to /etc/wireguard"
+fi
+
+echo -n "${clientname}" > "/var/lib/wireguard/m-connect"
