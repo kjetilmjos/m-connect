@@ -69,8 +69,8 @@ fi
 #post_up="iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
 #post_down="iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE"
 
-post_up_ha="iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE"
-post_down_ha="iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE"
+post_up_ha='iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE'
+post_down_ha='iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE'
 
 # Write full config file
  {
