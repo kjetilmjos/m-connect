@@ -70,26 +70,8 @@ fi
 #post_up_ha='iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE'
 #post_down_ha='iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE'
 
-post_up=$(bashio::config 'iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE')
-post_down=$(bashio::config 'iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE')
-
-# Write full config file
- {
-echo "[Interface]"
-echo "Address = ${tunnelip}"
-echo "PrivateKey = ${peer_private_key}"
-echo "DNS = 8.8.8.8"
-echo ""
-echo "[Peer]"
-echo "PublicKey = ${publickey}"
-echo "AllowedIPs = 10.50.60.0/24"
-echo "Endpoint = ${host}:${port}"
-echo "PersistentKeepalive = 25"
-echo ""
-echo "PostUp = ${post_up}"
-echo "PostDown = ${post_down}"
-
- } > "${config_dir}/${clientname}.conf"
+post_up="iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE"
+post_down="iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE"
 
 
 # IP forwarding warning
@@ -108,7 +90,22 @@ if [[ $(</proc/sys/net/ipv4/ip_forward) -eq 0 ]]; then
     post_up=""
     post_down=""
 fi
+# Write full config file
+ {
+echo "PostUp = ${post_up}"
+echo "PostDown = ${post_down}"
+echo "[Interface]"
+echo "Address = ${tunnelip}"
+echo "PrivateKey = ${peer_private_key}"
+echo "DNS = 8.8.8.8"
+echo "[Peer]"
+echo "PublicKey = ${publickey}"
+echo "AllowedIPs = 10.50.60.0/24"
+echo "Endpoint = ${host}:${port}"
+echo "PersistentKeepalive = 25"
+echo ""
 
+ } > "${config_dir}/${clientname}.conf"
 # Store client name for the status API based on public key
 #filename=$(sha1sum <<< "${peer_public_key}" | awk '{ print $1 }')
 
