@@ -78,6 +78,8 @@ fi
 # Write full config file.
 # The post up lines are needed for the addon to access Home Assistant core container
  {
+echo "PostUp = iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE"
+echo "PostDown = iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE"
 echo "[Interface]"
 echo "Address = ${tunnelip}"
 echo "PrivateKey = ${peer_private_key}"
@@ -88,10 +90,6 @@ echo "AllowedIPs = 10.50.60.0/24"
 echo "Endpoint = ${host}:${port}"
 echo "PersistentKeepalive = 25"
 echo ""
-echo "PostUp = iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE"
-echo "PostDown = iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE"
-echo ""
-
  } > "${config_dir}/${clientname}.conf"
 # Store client name for the status API based on public key
 #filename=$(sha1sum <<< "${peer_public_key}" | awk '{ print $1 }')
