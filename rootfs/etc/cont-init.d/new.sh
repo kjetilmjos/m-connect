@@ -7,29 +7,23 @@ declare config_dir
 declare clientname
 declare peer_private_key
 declare peer_public_key
+declare publickey
 declare tunnelip
 declare host
 declare port
 
 clientname="m-connect"
-config_dir="/ssl/wireguard/${clientname}"
+config_dir="/etc/wireguard"
+#config_dir="/etc/wireguard/${clientname}"
 
-if ! bashio::fs.directory_exists '/ssl/wireguard'; then
-    mkdir -p /ssl/wireguard ||
-        bashio::exit.nok "Could not create wireguard storage folder!"
-fi
-
-if ! bashio::fs.directory_exists '/etc2'; then
-    mkdir -p /etc2 ||
-        bashio::exit.nok "Could not create wireguard config directory!"
-fi
 if ! bashio::fs.directory_exists '/etc/wireguard'; then
     mkdir -p /etc/wireguard ||
-        bashio::exit.nok "Could not create wireguard config directory!"
+        bashio::exit.nok "Could not create wireguard folder!"
 fi
+
 # Create directory for storing client configuration
-mkdir -p "${config_dir}" ||
-    bashio::exit.nok "Failed creating client folder for ${clientname}"
+#mkdir -p "${config_dir}" ||
+#    bashio::exit.nok "Failed creating client folder for ${clientname}"
 
 # Status API Storage
 if ! bashio::fs.directory_exists '/var/lib/wireguard'; then
@@ -47,12 +41,16 @@ fi
 peer_private_key=$(<"${config_dir}/private_key")
 
 # Get the public key
-peer_public_key=""
-if bashio::var.has_value "${peer_private_key}"; then
+if ! bashio::fs.file_exists "${config_dir}/public_key"; then
+    peer_public_key=""
+    bashio::var.has_value "${peer_private_key}";
     peer_public_key=$(wg pubkey <<< "${peer_private_key}")
     echo "$peer_public_key" > "${config_dir}/public_key"
 fi
 
+if bashio::config.has_value "server.publickey"; then
+    publickey=$(bashio::config "server.publickey")
+fi
 if bashio::config.has_value "server.tunnelip"; then
     tunnelip=$(bashio::config "server.tunnelip")
 fi
@@ -70,13 +68,13 @@ echo "PrivateKey = ${peer_private_key}"
 echo "DNS = 8.8.8.8"
 echo ""
 echo "[Peer]"
-echo "PublicKey = ${peer_public_key}"
+echo "PublicKey = ${publickey}"
 echo "AllowedIPs = 10.50.60.0/24"
 echo "Endpoint = ${host}:${port}"
 echo "PersistentKeepalive = 25"
  } > "${config_dir}/${clientname}.conf"
 
-cp "${config_dir}/${clientname}.conf" "/etc/wireguard/${clientname}.conf"
+#cp "${config_dir}/${clientname}.conf" "/etc/wireguard/${clientname}.conf"
 # Store client name for the status API based on public key
 filename=$(sha1sum <<< "${peer_public_key}" | awk '{ print $1 }')
 echo -n "${clientname}" > "/var/lib/wireguard/${filename}"

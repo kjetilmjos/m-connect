@@ -1,6 +1,6 @@
 name: "m-connect"
 description: "This addon connects to the m-cloud to provide remote access and backup"
-version: "1.0.24"
+version: "1.0.28"
 slug: "m_connect"
 init: false
 url: https://mjos.org
@@ -8,7 +8,7 @@ hassio_api: true
 privileged:
   - NET_ADMIN
 map:
-  - config:rw
+  #  - config:rw
   - ssl:rw
 devices:
   - /dev/net/tun

@@ -3,7 +3,14 @@
 Remote connection client for home-assistant. Based on the wireguard addon developed by frenc
 https://github.com/hassio-addons/addon-wireguard
 
-# Install instructions
+# Usage instructions
+Options:
+Host = The IP of the wireguard master
+Port = The Wireguard port configured on the wireguard master
+PublicKey = The publick key for the wireguard master
+Tunnelip = The tunnel IP for the client in form of 192.168.45.0/24
+
+# DEV Install instructions
 
 Follow the instructions to download and install the Remote Containers VS Code extension.
 Copy the devcontainer.json file to .devcontainer.json in your repository.
@@ -15,4 +22,4 @@ The add-on(s) found in your root folder will automatically be found in the Local
 
 # testing
 
-After doing changes to the code you have to do the following
+After doing changes to the code you have to do the following.
