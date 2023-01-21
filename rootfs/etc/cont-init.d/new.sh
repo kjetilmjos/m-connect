@@ -13,8 +13,6 @@ declare host
 declare port
 declare post_down
 declare post_up
-declare post_down_ha
-declare post_up_ha
 
 clientname="m-connect"
 config_dir="/data/m-connect"
@@ -69,8 +67,11 @@ fi
 #post_up="iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
 #post_down="iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE"
 
-post_up_ha='iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE'
-post_down_ha='iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE'
+#post_up_ha='iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE'
+#post_down_ha='iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE'
+
+post_up=$(bashio::config 'iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE')
+post_down=$(bashio::config 'iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE')
 
 # Write full config file
  {
@@ -85,8 +86,8 @@ echo "AllowedIPs = 10.50.60.0/24"
 echo "Endpoint = ${host}:${port}"
 echo "PersistentKeepalive = 25"
 echo ""
-echo "PostUp = ${post_up_ha}"
-echo "PostDown = ${post_down_ha}"
+echo "PostUp = ${post_up}"
+echo "PostDown = ${post_down}"
 
  } > "${config_dir}/${clientname}.conf"
 
@@ -102,6 +103,10 @@ if [[ $(</proc/sys/net/ipv4/ip_forward) -eq 0 ]]; then
     bashio::log.warning "Please consult the add-on documentation on how"
     bashio::log.warning "to resolve this."
     bashio::log.warning
+
+    # Set fake placeholders for Up & Down commands
+    post_up=""
+    post_down=""
 fi
 
 # Store client name for the status API based on public key
