@@ -1,6 +1,6 @@
 name: "m-connect"
 description: "This addon connects to the m-cloud to provide remote access and backup"
-version: "1.0.49"
+version: "1.0.50"
 slug: "m_connect"
 init: false
 url: https://mjos.org
