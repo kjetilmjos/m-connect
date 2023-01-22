@@ -16,13 +16,14 @@ declare post_up
 
 clientname="m-connect"
 config_dir="/data/m-connect"
-#config_dir="/etc/wireguard/${clientname}"
 
+# Wireguard configuration directory
 if ! bashio::fs.directory_exists '/etc/wireguard'; then
     mkdir -p /etc/wireguard ||
         bashio::exit.nok "Could not create wireguard folder!"
 fi
 
+# Wireguard configuration directory for persistent storage
 if ! bashio::fs.directory_exists "${config_dir}"; then
     mkdir -p ${config_dir} ||
         bashio::exit.nok "Could not create persistent storage folder for m-connect!"
@@ -76,18 +77,20 @@ if [[ $(</proc/sys/net/ipv4/ip_forward) -eq 0 ]]; then
     bashio::log.warning "to resolve this."
     bashio::log.warning
     # Set fake placeholders for Up & Down commands
-    post_up=""
-    post_down=""
+ #   post_up=""
+ #   post_down=""
 fi
-# Write full config file.
+
 # The post up lines are needed for the addon to access Home Assistant core container
 post_up="iptables -t nat -A PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -A POSTROUTING -j MASQUERADE"
 post_down="iptables -t nat -D PREROUTING -j DNAT --to-destination 172.30.32.1; iptables -t nat -D POSTROUTING -j MASQUERADE"
+
+# Write full config file.
 {
 echo "[Interface]"
 echo "Address = ${tunnelip}"
 echo "PrivateKey = ${peer_private_key}"
-echo "DNS = 8.8.8.8"
+#echo "DNS = 8.8.8.8"
 echo "PostUp = ${post_up}"
 echo "PostDown = ${post_down}"
 echo "[Peer]"
@@ -97,14 +100,12 @@ echo "Endpoint = ${host}:${port}"
 echo "PersistentKeepalive = 25"
 echo ""
 } > "${config_dir}/${clientname}.conf"
-# Store client name for the status API based on public key
-#filename=$(sha1sum <<< "${peer_public_key}" | awk '{ print $1 }')
 
 # Move config file to /etc/wireguard if the file does not exist
 if ! bashio::fs.file_exists '/etc/wireguard/m-connect.conf'; then
     cp "${config_dir}/${clientname}.conf" "/etc/wireguard/${clientname}.conf" ||
         bashio::exit.nok "Unable to move config file to /etc/wireguard"
 fi
-
+# Store for the status API based on interface name
 echo -n "${clientname}" > "/var/lib/wireguard/m-connect"
 
