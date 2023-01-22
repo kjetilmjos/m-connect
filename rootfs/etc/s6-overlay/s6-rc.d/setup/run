@@ -107,3 +107,4 @@ if ! bashio::fs.file_exists '/etc/wireguard/m-connect.conf'; then
 fi
 
 echo -n "${clientname}" > "/var/lib/wireguard/m-connect"
+
