@@ -31,3 +31,10 @@ sudo docker exec -it <<addon contianer ID>> /bin/bash
 
 After doing changes to the code you have to do the following.
 Addon store and check for updates. Then refresh browser
+
+# IP range
+Maximum 31 clients in the network. 
+Picked a range that is not going to be used on the home router
+10.170.204.0/27
+
+10.170.204.0 - 10.170.204.31
