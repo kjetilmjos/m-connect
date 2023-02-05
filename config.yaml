@@ -1,9 +1,9 @@
 name: "m-connect"
-description: "This addon connects to the m-cloud to provide remote access and backup"
-version: "1.0.61"
+description: "Wireguard client for reverse proxy in cloud setup"
+version: "2023.2.0"
 slug: "m_connect"
 init: false
-url: https://mjos.org
+url: https://github.com/kjetilmjos/m-connect
 hassio_api: true
 privileged:
   - NET_ADMIN
