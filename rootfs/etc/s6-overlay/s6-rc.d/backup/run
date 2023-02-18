@@ -1,0 +1,24 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Home Assistant Community Add-on: m-connect
+# Runs backup tasks
+# ==============================================================================
+#https://linuxize.com/post/how-to-create-users-in-linux-using-the-useradd-command/?utm_content=cmp-true
+
+# Get the supervisor token? Maybe auth with username and password?
+
+#curl -sSL -H "Authorization: Bearer <<BEARERTOKEN>>" http://supervisor/backups/info
+
+curl -sSL -H "Authorization: Bearer <<BEARERTOKEN>>" -X POST http://supervisor/backups/new/full
+
+#Result = {"result": "ok", "data": {"slug": "3d8be061"}}
+#Sjekk for ok og sett opp synch, hvis ikke send feilmelding i loggen.
+
+#Remote backup_location="gapit@10.0.0.23:/home/gapit/production_backup/"
+# Backup file
+#gpg -dq auth.gpg | sshpass rsync -av "$docker_compose_dir" "$backup_location"
+# trenger en bruker og et passord per HA instans som skal laste opp backup.
+# Setup SSH access from addon to remote computer
+# Bruk command permitted i authorized key fila: https://www.ssh.com/academy/ssh/authorized-keys-file
+#ssh-copy-id
+#rsync -a ~/dir1 username@remote_host:destination_directory
