@@ -16,9 +16,12 @@ curl -sSL -H "Authorization: Bearer <<BEARERTOKEN>>" -X POST http://supervisor/b
 
 #Remote backup_location="gapit@10.0.0.23:/home/gapit/production_backup/"
 # Backup file
-#gpg -dq auth.gpg | sshpass rsync -av "$docker_compose_dir" "$backup_location"
-# trenger en bruker og et passord per HA instans som skal laste opp backup.
-# Setup SSH access from addon to remote computer
+# trenger en bruker og et passord per HA instans som skal laste opp backup. Se server guide
+ssh-keygen -t ed25519 -C "acrobatic-sailfish" -f ~/.ssh/acrobatic-sailfish -P ""
 # Bruk command permitted i authorized key fila: https://www.ssh.com/academy/ssh/authorized-keys-file
-#ssh-copy-id
-#rsync -a ~/dir1 username@remote_host:destination_directory
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/acrobatic-sailfish
+ssh-copy-id -o "StrictHostKeyChecking no" -i ~/.ssh/acrobatic-sailfish acrobatic-sailfish@host-ip
+#Have slugname as variable
+curl -sSL -H "Authorization: Bearer <<BEARERTOKEN>>" http://supervisor/backups/a52292b1/download > /data/m-connect/backup/ha_backup_acrobatic-sailfish
+rsync /data/m-connect/backup/ha_backup_acrobatic-sailfish acrobatic-sailfish@host-ip:/m-connect/acrobatic-sailfish

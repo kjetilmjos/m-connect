@@ -4,7 +4,9 @@ FROM $BUILD_FROM
 # Install requirements for add-on
 RUN \
   apk add --no-cache \
-    wireguard-tools
+    wireguard-tools \
+    openssh \
+    rsynch
 
 # Copy data for add-on
 #COPY run.sh /
