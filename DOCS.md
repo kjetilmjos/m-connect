@@ -21,6 +21,9 @@ host: str
 port: int
 publickey: str
 tunnelip: str
+enable_backup: bool
+username: str
+password: str
 ```
 
 ### Option: `host` (required)
@@ -46,12 +49,15 @@ The default range for the wireguard setup in m-connect is: 10.170.204.0/27.
 If this is youur first client on the network you could choose for example. `xxx.xxx.xxx.xxx/27`
 
 ### Option: `enable_backup` (required)
+
 Defaults to false. When true a backup will be synched to m-cloud server on regular intervals.
 
 ### Option: `username` (optional)
+
 The username obtained from the m-cloud server
 
 ### Option: `password` (optional)
+
 The password obtained from the m-cloud server
 
 # Usage instructions

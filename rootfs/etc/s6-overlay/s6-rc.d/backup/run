@@ -16,5 +16,5 @@
 
 #Remote backup_location="gapit@10.0.0.23:/home/gapit/production_backup/"
 #Have slugname as variable
-curl -sSL -H "Authorization: Bearer <<BEARERTOKEN>>" http://supervisor/backups/a52292b1/download > /data/m-connect/backup/ha_backup_acrobatic-sailfish
-rsync /data/m-connect/backup/ha_backup_acrobatic-sailfish acrobatic-sailfish@host-ip:/m-connect/acrobatic-sailfish
+#curl -sSL -H "Authorization: Bearer <<BEARERTOKEN>>" http://supervisor/backups/a52292b1/download > /data/m-connect/backup/ha_backup_acrobatic-sailfish
+#rsync /data/m-connect/backup/ha_backup_acrobatic-sailfish acrobatic-sailfish@host-ip:/m-connect/acrobatic-sailfish

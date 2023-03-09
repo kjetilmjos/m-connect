@@ -11,12 +11,13 @@ backup_enable=false
 if bashio::config.has_value "server.enable_backup"; then
     backup_enable=$(bashio::config "server.enable_backup")
 fi
-bashio::exit.die_if_false $backup_enable "Backup is disabled. Backup startup script will stop"
-#if [[ $(backup_enable) -eq false ]]; then
-#    bashio::log.warning
-#    bashio::log.warning "Backup is disabled. Backup startup script will stop"
-#    bashio::log.warning
-#fi
+#bashio::exit.die_if_false $backup_enable "Backup is disabled. Backup startup script will stop"
+if [[ $backup_enable = false ]]; then
+    bashio::log.warning
+    bashio::log.warning "Backup is disabled. Backup startup script will exit"
+    bashio::log.warning
+    bashio::exit.ok
+fi
 # ------------------------------------------------------------------------------
 # Exit the script when given value is false, with an optional error message.
 #
