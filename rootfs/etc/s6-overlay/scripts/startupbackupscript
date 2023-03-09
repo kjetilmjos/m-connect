@@ -1,0 +1,34 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Home Assistant Add-on: m-connect
+# Creates the backup configuration
+# ==============================================================================
+declare backup_enable
+
+backup_enable=false
+
+# Get config input from addon UI
+if bashio::config.has_value "server.enable_backup"; then
+    backup_enable=$(bashio::config "server.enable_backup")
+fi
+#bashio::exit.die_if_false $backup_enable "Backup is disabled. Backup startup script will stop"
+if [[ $backup_enable = false ]]; then
+    bashio::log.warning
+    bashio::log.warning "Backup is disabled. Backup startup script will exit"
+    bashio::log.warning
+    bashio::exit.ok
+fi
+# ------------------------------------------------------------------------------
+# Exit the script when given value is false, with an optional error message.
+#
+# Arguments:
+#   $1 Value to check if false
+#   $2 Error message (optional)
+# ------------------------------------------------------------------------------
+# Backup file
+# trenger en bruker og et passord per HA instans som skal laste opp backup. Se server guide
+#ssh-keygen -t ed25519 -C "acrobatic-sailfish" -f ~/.ssh/acrobatic-sailfish -P ""
+# Bruk command permitted i authorized key fila: https://www.ssh.com/academy/ssh/authorized-keys-file
+#eval "$(ssh-agent -s)"
+#ssh-add ~/.ssh/acrobatic-sailfish
+#ssh-copy-id -o "StrictHostKeyChecking no" -i ~/.ssh/acrobatic-sailfish acrobatic-sailfish@host-ip
