@@ -6,7 +6,7 @@ RUN \
   apk add --no-cache \
     wireguard-tools \
     openssh \
-    rsynch
+    rsync
 
 # Copy data for add-on
 #COPY run.sh /
