@@ -18,6 +18,7 @@ if [[ $backup_enable = false ]]; then
     bashio::log.warning
     bashio::exit.ok
 fi
+bashio::exit.ok
 # ------------------------------------------------------------------------------
 # Exit the script when given value is false, with an optional error message.
 #

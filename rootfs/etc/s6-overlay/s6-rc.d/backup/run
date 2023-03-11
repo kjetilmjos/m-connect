@@ -3,18 +3,33 @@
 # Home Assistant Community Add-on: m-connect
 # Runs backup tasks
 # ==============================================================================
-#https://linuxize.com/post/how-to-create-users-in-linux-using-the-useradd-command/?utm_content=cmp-true
+declare backup_enable
 
-# Get the supervisor token? Maybe auth with username and password?
+backup_enable=false
 
-#curl -sSL -H "Authorization: Bearer <<BEARERTOKEN>>" http://supervisor/backups/info
+# Get config input from addon UI
+if bashio::config.has_value "server.enable_backup"; then
+    backup_enable=$(bashio::config "server.enable_backup")
+fi
+#bashio::exit.die_if_false $backup_enable "Backup is disabled. Backup startup script will stop"
+if [[ $backup_enable = false ]]; then
+    bashio::log.warning
+    bashio::log.warning "Backup is disabled. Backup creation cronscript will not happen"
+    bashio::log.warning
+    bashio::exit.ok
+fi
+# Get the supervisor token from os environment
+SUPER_TOKEN=${SUPERVISOR_TOKEN}
+#resp=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" http://supervisor/backups/info)
+# {"result": "ok", "data": {"backups": [{"slug": "df69081e", "name": "", "date": "2023-03-11T08:36:06.393579+00:00", "type": "full", "size": 37.71, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}], "days_until_stale": 30}}
 
-#curl -sSL -H "Authorization: Bearer <<BEARERTOKEN>>" -X POST http://supervisor/backups/new/full
-
+# trigger a full backup
+curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X POST http://supervisor/backups/new/full
 #Result = {"result": "ok", "data": {"slug": "3d8be061"}}
 #Sjekk for ok og sett opp synch, hvis ikke send feilmelding i loggen.
 
 #Remote backup_location="gapit@10.0.0.23:/home/gapit/production_backup/"
 #Have slugname as variable
-#curl -sSL -H "Authorization: Bearer <<BEARERTOKEN>>" http://supervisor/backups/a52292b1/download > /data/m-connect/backup/ha_backup_acrobatic-sailfish
+#curl -sSL -H "Authorization: Bearer $SUPERVISOR_TOKEN" http://supervisor/backups/a52292b1/download > /data/m-connect/backup/ha_backup_acrobatic-sailfish
 #rsync /data/m-connect/backup/ha_backup_acrobatic-sailfish acrobatic-sailfish@host-ip:/m-connect/acrobatic-sailfish
+sleep 1d
