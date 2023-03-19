@@ -37,12 +37,18 @@ LATEST_BACKUP=$(echo "$AllBackups" | jq -r --argjson TARGET_TIMESTAMP "$TARGET_T
 if [[ -z "$LATEST_BACKUP" || "$LATEST_BACKUP" = "null" ]]
 then
 # Condition evalutated to false. Need to trigger a new full backup.
+bashio::log.warning
+bashio::log.warning "A new backup is needed and will be created"
+bashio::log.warning
 BACKUP_SLUG=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X POST http://supervisor/backups/new/full | jq -r '.data.slug')
 #Result = {"result": "ok", "data": {"slug": "3d8be061"}}
 DOWNLOAD_URL="http://supervisor/backups/$BACKUP_SLUG/download"
-curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > /home/ha_backup_acrobatic-sailfish.tar
-curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X DELETE "http://supervisor/backups/$BACKUP_SLUG"
+curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > /home/acrobatic-sailfish.tar
+#curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X DELETE "http://supervisor/backups/$BACKUP_SLUG"
 else
+bashio::log.warning
+bashio::log.warning "An exisiting backup is newer than created by the script. The manual created backup will be synched."
+bashio::log.warning
 DOWNLOAD_URL="http://supervisor/backups/$LATEST_BACKUP/download"
 curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > /home/ha_backup_acrobatic-sailfish.tar
 fi
