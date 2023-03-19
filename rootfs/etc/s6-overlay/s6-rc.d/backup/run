@@ -16,6 +16,7 @@ if [[ $backup_enable = false ]]; then
     bashio::log.warning
     bashio::log.warning "Backup is disabled. Backup creation will not happen"
     bashio::log.warning
+    sleep 1d
     bashio::exit.ok
 fi
 # Get the supervisor token from os environment
@@ -44,7 +45,7 @@ BACKUP_SLUG=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X POST http://s
 #Result = {"result": "ok", "data": {"slug": "3d8be061"}}
 DOWNLOAD_URL="http://supervisor/backups/$BACKUP_SLUG/download"
 curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > /home/acrobatic-sailfish.tar
-#curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X DELETE "http://supervisor/backups/$BACKUP_SLUG"
+#Ccurl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X DELETE "http://supervisor/backups/$BACKUP_SLUG"
 else
 bashio::log.warning
 bashio::log.warning "An exisiting backup is newer than created by the script. The manual created backup will be synched."
