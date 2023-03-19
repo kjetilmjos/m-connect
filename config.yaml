@@ -1,6 +1,6 @@
 name: "m-connect"
 description: "Wireguard client for reverse proxy in cloud setup"
-version: "2023.3.13"
+version: "2023.3.14"
 slug: "m_connect"
 init: false
 url: https://github.com/kjetilmjos/m-connect
@@ -12,6 +12,7 @@ privileged:
   - NET_ADMIN
 map:
   - config:rw
+  - data:rw
 devices:
   - /dev/net/tun
 arch:
