@@ -1,3 +1,7 @@
+## 2023.3.1
+
+- Added functionality for backup creation. This will be done daily if not any manual full backup is created in the meantime. This version is for testing only
+
 ## 2023.3.0
 
 - Added first backup functionality with init script and longrun script. Functionality only supports to be disabled at the moment
