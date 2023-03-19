@@ -6,12 +6,8 @@ RUN \
   apk add --no-cache \
     wireguard-tools \
     openssh \
-    rsync
-
-# Copy data for add-on
-#COPY run.sh /
-#RUN chmod a+x /run.sh
-
-#CMD [ "/run.sh" ]
+    rsync \
+    nano \
+    jq
 
 COPY rootfs /

@@ -3,18 +3,61 @@
 # Home Assistant Community Add-on: m-connect
 # Runs backup tasks
 # ==============================================================================
-#https://linuxize.com/post/how-to-create-users-in-linux-using-the-useradd-command/?utm_content=cmp-true
+declare backup_enable
 
-# Get the supervisor token? Maybe auth with username and password?
+backup_enable=false
 
-#curl -sSL -H "Authorization: Bearer <<BEARERTOKEN>>" http://supervisor/backups/info
+# Get config input from addon UI
+if bashio::config.has_value "server.enable_backup"; then
+    backup_enable=$(bashio::config "server.enable_backup")
+fi
+#bashio::exit.die_if_false $backup_enable "Backup is disabled. Backup startup script will stop"
+if [[ $backup_enable = false ]]; then
+    bashio::log.warning
+    bashio::log.warning "Backup is disabled. Backup creation will not happen"
+    bashio::log.warning
+    bashio::exit.ok
+fi
+# Get the supervisor token from os environment
+SUPER_TOKEN=${SUPERVISOR_TOKEN}
+AllBackups=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" http://supervisor/backups/info)
+#{"result": "ok", "data": {"backups": [{"slug": "1cf71bc8", "name": "March 19, 2023", "date": "2023-03-19T10:48:49.318177+00:00", "type": "partial", "size": 0.01, "protected": false, "compressed": true, "content": {"homeassistant": false, "addons": [], "folders": []}}, {"slug": "04ae5d15", "name": "", "date": "2023-03-11T12:16:56.579912+00:00", "type": "full", "size": 37.88, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}, {"slug": "9aafc5d0", "name": "", "date": "2023-03-11T12:06:27.216771+00:00", "type": "full", "size": 37.88, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}, {"slug": "64db2fba", "name": "", "date": "2023-03-11T12:27:25.780668+00:00", "type": "full", "size": 37.88, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}, {"slug": "e421a9ce", "name": "", "date": "2023-03-11T11:55:57.916416+00:00", "type": "full", "size": 37.88, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}], "days_until_stale": 30}}
 
-#curl -sSL -H "Authorization: Bearer <<BEARERTOKEN>>" -X POST http://supervisor/backups/new/full
+#Find timestamp
+CURRENT_TIMESTAMP=$(date +%s)  # get the current timestamp in seconds since Unix epoch
+TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 86400 ))  # subtract 7 days from the current timestamp
 
+# Get the slug of the newest FULL backup type
+jq_command='.data.backups
+ | map(select(.type == "full" and (.date > ($TARGET_TIMESTAMP))))
+ | sort_by(.date)
+ | .[-1].slug'
+LATEST_BACKUP=$(echo "$AllBackups" | jq -r --argjson TARGET_TIMESTAMP "$TARGET_TIMESTAMP" "$jq_command")
+
+if [[ -z "$LATEST_BACKUP" || "$LATEST_BACKUP" = "null" ]]
+then
+# Condition evalutated to false. Need to trigger a new full backup.
+bashio::log.warning
+bashio::log.warning "A new backup is needed and will be created"
+bashio::log.warning
+BACKUP_SLUG=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X POST http://supervisor/backups/new/full | jq -r '.data.slug')
 #Result = {"result": "ok", "data": {"slug": "3d8be061"}}
+DOWNLOAD_URL="http://supervisor/backups/$BACKUP_SLUG/download"
+curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > /home/acrobatic-sailfish.tar
+#curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X DELETE "http://supervisor/backups/$BACKUP_SLUG"
+else
+bashio::log.warning
+bashio::log.warning "An exisiting backup is newer than created by the script. The manual created backup will be synched."
+bashio::log.warning
+DOWNLOAD_URL="http://supervisor/backups/$LATEST_BACKUP/download"
+curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > /home/ha_backup_acrobatic-sailfish.tar
+fi
+
 #Sjekk for ok og sett opp synch, hvis ikke send feilmelding i loggen.
 
 #Remote backup_location="gapit@10.0.0.23:/home/gapit/production_backup/"
-#Have slugname as variable
-#curl -sSL -H "Authorization: Bearer <<BEARERTOKEN>>" http://supervisor/backups/a52292b1/download > /data/m-connect/backup/ha_backup_acrobatic-sailfish
 #rsync /data/m-connect/backup/ha_backup_acrobatic-sailfish acrobatic-sailfish@host-ip:/m-connect/acrobatic-sailfish
+
+# After synch complete remove the backup created
+
+sleep 1d
