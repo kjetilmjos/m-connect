@@ -20,8 +20,15 @@ if [[ $backup_enable = false ]]; then
 fi
 # Get the supervisor token from os environment
 SUPER_TOKEN=${SUPERVISOR_TOKEN}
-#resp=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" http://supervisor/backups/info)
-# {"result": "ok", "data": {"backups": [{"slug": "df69081e", "name": "", "date": "2023-03-11T08:36:06.393579+00:00", "type": "full", "size": 37.71, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}], "days_until_stale": 30}}
+AllBackups=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" http://supervisor/backups/info)
+#{"result": "ok", "data": {"backups": [{"slug": "1cf71bc8", "name": "March 19, 2023", "date": "2023-03-19T10:48:49.318177+00:00", "type": "partial", "size": 0.01, "protected": false, "compressed": true, "content": {"homeassistant": false, "addons": [], "folders": []}}, {"slug": "04ae5d15", "name": "", "date": "2023-03-11T12:16:56.579912+00:00", "type": "full", "size": 37.88, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}, {"slug": "9aafc5d0", "name": "", "date": "2023-03-11T12:06:27.216771+00:00", "type": "full", "size": 37.88, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}, {"slug": "64db2fba", "name": "", "date": "2023-03-11T12:27:25.780668+00:00", "type": "full", "size": 37.88, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}, {"slug": "e421a9ce", "name": "", "date": "2023-03-11T11:55:57.916416+00:00", "type": "full", "size": 37.88, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}], "days_until_stale": 30}}# Get the slug of the newest FULL backup type
+#jq_command='.data.backups | map(select(.type == "full")) | sort_by(.date) | .[-1].slug'
+jq_command='.data.backups
+ | map(select(.type == "full" and (.date < (now - 604800))))
+ | sort_by(.date)
+ | .[-1].slug'
+echo "$AllBackups" | jq "$jq_command"
+
 
 # trigger a full backup
 curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X POST http://supervisor/backups/new/full

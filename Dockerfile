@@ -7,6 +7,7 @@ RUN \
     wireguard-tools \
     openssh \
     rsync \
-    nano
+    nano \
+    jq
 
 COPY rootfs /
