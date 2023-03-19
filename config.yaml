@@ -12,7 +12,6 @@ privileged:
   - NET_ADMIN
 map:
   - config:rw
-  - data:rw
 devices:
   - /dev/net/tun
 arch:
