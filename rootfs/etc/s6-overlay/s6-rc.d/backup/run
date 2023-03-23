@@ -4,21 +4,36 @@
 # Runs backup tasks
 # ==============================================================================
 declare backup_enable
-
+declare host
+declare username
 backup_enable=false
+bashio::log.info "---------Backup status---------"
 
 # Get config input from addon UI
 if bashio::config.has_value "server.enable_backup"; then
     backup_enable=$(bashio::config "server.enable_backup")
 fi
+
 #bashio::exit.die_if_false $backup_enable "Backup is disabled. Backup startup script will stop"
 if [[ $backup_enable = false ]]; then
     bashio::log.warning
     bashio::log.warning "Backup is disabled. Backup creation will not happen. "
-    bashio::log.warning "Backup function will go into sleep mode. Restart addon to start script again "
+    bashio::log.warning "Backup function will go into sleep mode. Restart addon to start backup functionality again "
     bashio::log.warning
     sleep 365d
 fi
+
+if bashio::config.has_value "server.host"; then
+    host=$(bashio::config "server.host")
+fi
+if bashio::config.has_value "server.username"; then
+    username=$(bashio::config "server.username")
+fi
+
+USERNAME="$username"
+FILE_DESTINATION="$USERNAME@$host:/m-connect/$USERNAME"
+FILE_SOURCE="/home/$USERNAME.tar"
+
 # Get the supervisor token from os environment
 SUPER_TOKEN=${SUPERVISOR_TOKEN}
 AllBackups=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" http://supervisor/backups/info)
@@ -26,7 +41,8 @@ AllBackups=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" http://supervisor
 
 #Find timestamp
 CURRENT_TIMESTAMP=$(date +%s)  # get the current timestamp in seconds since Unix epoch
-TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
+#TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
+TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 100 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
 
 # Get the slug of the newest FULL backup type
 jq_command='.data.backups
@@ -41,24 +57,39 @@ then
 bashio::log.info
 bashio::log.info "A new backup is needed and will be created. This can take some time..."
 bashio::log.info
+
 BACKUP_SLUG=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X POST http://supervisor/backups/new/full | jq -r '.data.slug')
 #Result = {"result": "ok", "data": {"slug": "3d8be061"}}
 DOWNLOAD_URL="http://supervisor/backups/$BACKUP_SLUG/download"
-curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > /home/acrobatic-sailfish.tar
-#Ccurl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X DELETE "http://supervisor/backups/$BACKUP_SLUG"
+curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > $FILE_SOURCE
 else
 bashio::log.info
 bashio::log.info "An exisiting backup is newer than created by the script. The manual created backup will be synched."
 bashio::log.info
 DOWNLOAD_URL="http://supervisor/backups/$LATEST_BACKUP/download"
-curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > /home/ha_backup_acrobatic-sailfish.tar
+curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > $FILE_SOURCE
+BACKUP_SLUG=$LATEST_BACKUP
 fi
 
-#Sjekk for ok og sett opp synch, hvis ikke send feilmelding i loggen.
 
-#Remote backup_location="gapit@10.0.0.23:/home/gapit/production_backup/"
-#rsync /data/m-connect/backup/ha_backup_acrobatic-sailfish acrobatic-sailfish@host-ip:/m-connect/acrobatic-sailfish
+# Turn off "exit on error" option
+set +e
+rsync $FILE_SOURCE $FILE_DESTINATION 2>&1 | tee /tmp/rsync.log
+RSYNC_EXIT_STATUS=${PIPESTATUS[0]}
+# Turn "exit on error" option back on
+set -e
 
-# After synch complete remove the backup created
+if [ $RSYNC_EXIT_STATUS -eq 0 ]; then
+    bashio::log.info
+    bashio::log.info "Backup synchronized successfully"
+    bashio::log.info
+    curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X DELETE "http://supervisor/backups/$BACKUP_SLUG"
+    rm $FILE_SOURCE
+else
+    bashio::log.error
+    bashio::log.error "Unable to synchronize backup."
+    bashio::log.error
 
-sleep 1d
+fi
+
+sleep 2m
