@@ -4,14 +4,10 @@
 # Runs WireGuard
 # ==============================================================================
 declare interface
-#sleep 30
+
 s6-svc -O /run/service/wireguard
 
 bashio::log.info "Starting WireGuard..."
-
-# This is alpha software. We need to set this to instruct
-# WireGuard we are OK to go.
-#export WG_I_PREFER_BUGGY_USERSPACE_TO_POLISHED_KMOD=1
 
 # Get the interface
 interface="m-connect"

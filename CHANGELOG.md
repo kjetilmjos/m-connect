@@ -1,3 +1,8 @@
+## 2023.3.2
+
+- Minor fix of backup functionality
+- Better log output from wireguard status
+
 ## 2023.3.1
 
 - Added functionality for backup creation. This will be done daily if not any manual full backup is created in the meantime. This version is for testing only
