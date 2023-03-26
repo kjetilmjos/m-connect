@@ -18,14 +18,8 @@ if [[ $backup_enable = false ]]; then
     bashio::log.warning
     bashio::exit.ok
 fi
-bashio::exit.ok
-# ------------------------------------------------------------------------------
-# Exit the script when given value is false, with an optional error message.
-#
-# Arguments:
-#   $1 Value to check if false
-#   $2 Error message (optional)
-# ------------------------------------------------------------------------------
+
+
 # Backup file
 # trenger en bruker og et passord per HA instans som skal laste opp backup. Se server guide
 #ssh-keygen -t ed25519 -C "acrobatic-sailfish" -f ~/.ssh/acrobatic-sailfish -P ""
@@ -33,3 +27,4 @@ bashio::exit.ok
 #eval "$(ssh-agent -s)"
 #ssh-add ~/.ssh/acrobatic-sailfish
 #ssh-copy-id -o "StrictHostKeyChecking no" -i ~/.ssh/acrobatic-sailfish acrobatic-sailfish@host-ip
+bashio::exit.ok

@@ -1,3 +1,8 @@
+## 2023.3.3
+
+- Updated logic for creating backup
+- Improved error handling for backup creation
+
 ## 2023.3.2
 
 - Minor fix of backup functionality

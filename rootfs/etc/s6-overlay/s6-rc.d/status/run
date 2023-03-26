@@ -4,6 +4,7 @@
 # Shows current WireGuard status
 # ==============================================================================
 sleep 60
+bashio::log.info
 bashio::log.info "---------Current WireGuard status---------"
 
 data=$(exec wg show)
@@ -14,5 +15,5 @@ transfer=$(echo "$data" | grep "transfer:" | awk '{$1=""; print $0}')
 
 bashio::log.info "Last handshake:$latest_handshake"
 bashio::log.info "Data transfer:$transfer"
-bashio::log.info "Public key:$public_key"
-bashio::log.info "-------------End-------------"
+bashio::log.info "Public key: $public_key"
+bashio::log.info "------------------------------------------"

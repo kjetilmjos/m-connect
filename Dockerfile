@@ -8,6 +8,7 @@ RUN \
     openssh \
     rsync \
     nano \
-    jq
+    jq \
+    coreutils
 
 COPY rootfs /
