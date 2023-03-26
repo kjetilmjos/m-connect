@@ -42,16 +42,15 @@ AllBackups=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" http://supervisor
 #Find timestamp
 CURRENT_TIMESTAMP=$(date +%s)  # get the current timestamp in seconds since Unix epoch
 TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
-#TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 100 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
 
 # Get the slug of the newest FULL backup type
 jq_command='.data.backups
  | map(select(.type == "full"))
  | sort_by(.date)
  | .[-1]'
-LATEST_BACKUP=$(echo "$AllBackups" | jq -r --argjson TARGET_TIMESTAMP "$TARGET_TIMESTAMP" "$jq_command")
-DATE_LATEST=$(echo "$LATEST_BACKUP" | jq -r '.date' )
-TIMESTAMP_LATEST=$(date -d $DATE_LATEST +%s)
+
+LATEST_BACKUP=$(jq -r "$jq_command" <<< "$AllBackups")
+LATEST_BACKUP_SLUG=$(jq -r ".slug" <<< "$LATEST_BACKUP")
 
 if [[ -z "$LATEST_BACKUP" || "$LATEST_BACKUP" = "null" ]]
 then
@@ -64,15 +63,20 @@ BACKUP_SLUG=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X POST http://s
 #Result = {"result": "ok", "data": {"slug": "3d8be061"}}
 DOWNLOAD_URL="http://supervisor/backups/$BACKUP_SLUG/download"
 curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > $FILE_SOURCE
+else
+#DATE_LATEST=$(echo $LATEST_BACKUP | jq -r ".date")
+DATE_LATEST=$(jq -r '.date' <<< "$LATEST_BACKUP")
+TIMESTAMP_LATEST=$(date -d $DATE_LATEST +%s)
 
-elif [[ $TIMESTAMP_LATEST -gt $TARGET_TIMESTAMP ]]
+if [[ $TIMESTAMP_LATEST -gt $TARGET_TIMESTAMP ]]
 then
 bashio::log.info
 bashio::log.info "An exisiting backup is newer than created by the script. The manual created backup will be synched."
 bashio::log.info
-DOWNLOAD_URL="http://supervisor/backups/$LATEST_BACKUP/download"
+DOWNLOAD_URL="http://supervisor/backups/$LATEST_BACKUP_SLUG/download"
+
 curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > $FILE_SOURCE
-BACKUP_SLUG=$LATEST_BACKUP
+BACKUP_SLUG=$LATEST_BACKUP_SLUG
 
 elif [[ $TARGET_TIMESTAMP -gt $TIMESTAMP_LATEST  ]]
 then
@@ -87,6 +91,7 @@ curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > $FILE_SOURCE
 else
 bashio::log.warning "The backup did not do any action"
 fi
+fi
 
 # Turn off "exit on error" option
 set +e
@@ -97,13 +102,13 @@ set -e
 
 if [ $RSYNC_EXIT_STATUS -eq 0 ]; then
     bashio::log.info
-    bashio::log.info "Backup synchronized successfully"
+    bashio::log.info "Backup synchronized successfully to m-cloud"
     bashio::log.info
     curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X DELETE "http://supervisor/backups/$BACKUP_SLUG"
     rm $FILE_SOURCE
 else
     bashio::log.error
-    bashio::log.error "Unable to synchronize backup."
+    bashio::log.error "Backup functionality enabled, but unable to synchronize backup to m-cloud."
     bashio::log.error
 
 fi
