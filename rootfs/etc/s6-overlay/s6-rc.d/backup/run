@@ -81,6 +81,7 @@ DOWNLOAD_URL="http://supervisor/backups/$LATEST_BACKUP_SLUG/download"
 
 curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > $FILE_SOURCE
 #BACKUP_SLUG=$LATEST_BACKUP_SLUG
+BACKUP_SLUG=""
 
 elif [[ $TARGET_TIMESTAMP -gt $TIMESTAMP_LATEST  ]]
 then
