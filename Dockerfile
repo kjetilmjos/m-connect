@@ -9,6 +9,7 @@ RUN \
     rsync \
     nano \
     jq \
-    coreutils
+    coreutils \
+    sshpass
 
 COPY rootfs /

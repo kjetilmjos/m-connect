@@ -1,3 +1,7 @@
+## 2023.3.4
+
+- Added ssh login and synchronization of backup
+
 ## 2023.3.3
 
 - Updated logic for creating backup
