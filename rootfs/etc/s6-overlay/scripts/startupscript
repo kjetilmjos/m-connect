@@ -17,7 +17,7 @@ declare post_up
 clientname="m-connect"
 config_dir="/data/m-connect"
 
-echo "$(cat /data/m-connect/public_key)"
+echo "$(cat /data/m-connect/public_key.pub)"
 # Wireguard configuration directory
 if ! bashio::fs.directory_exists '/etc/wireguard'; then
     mkdir -p /etc/wireguard ||
