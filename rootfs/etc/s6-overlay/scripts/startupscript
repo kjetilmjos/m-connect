@@ -100,6 +100,7 @@ echo "Endpoint = ${host}:${port}"
 echo "PersistentKeepalive = 25"
 echo ""
 } > "${config_dir}/${clientname}.conf"
+bashio::log.info "Public key $publickey"
 
 # Move config file to /etc/wireguard if the file does not exist
 if ! bashio::fs.file_exists '/etc/wireguard/m-connect.conf'; then

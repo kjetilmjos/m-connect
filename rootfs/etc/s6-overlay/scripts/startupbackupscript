@@ -32,15 +32,15 @@ if bashio::config.has_value "server.host"; then
 fi
 
 # If private key is already existing, don't create a new one
-if bashio::fs.file_exists "/data/m-connect/backup_cred/${username}"; then
+if bashio::fs.file_exists "/data/backup_cred/${username}"; then
     bashio::log.info "An existing ssh key was found. A new one will not be generated"
     bashio::exit.ok
 fi
-mkdir -p /data/m-connect/backup_cred
+mkdir -p /data/backup_cred
 # Creating required folder for ssh-copy-id
 mkdir -p ~/.ssh
-ssh-keygen -t ed25519 -C "$username" -f /data/m-connect/backup_cred/$username -P ""
+ssh-keygen -t ed25519 -C "$username" -f /data/backup_cred/$username -P ""
 # Bruk command permitted i authorized key fila: https://www.ssh.com/academy/ssh/authorized-keys-file
 eval "$(ssh-agent -s)"
-ssh-add /data/m-connect/backup_cred/$username
-sshpass -p "$password" ssh-copy-id -o "StrictHostKeyChecking no" -i /data/m-connect/backup_cred/$username $username@$host
+ssh-add /data/backup_cred/$username
+sshpass -p "$password" ssh-copy-id -o "StrictHostKeyChecking no" -i /data/backup_cred/$username $username@$host
