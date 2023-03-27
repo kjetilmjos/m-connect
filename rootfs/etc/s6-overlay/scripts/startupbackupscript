@@ -32,7 +32,7 @@ if bashio::config.has_value "server.host"; then
 fi
 
 # If private key is already existing, don't create a new one
-if bashio::fs.file_exists "/data/m-connect/$username"; then
+if bashio::fs.file_exists "/data/m-connect/${username}"; then
     bashio::log.info "An existing ssh key was found. A new one will not be generated"
     bashio::exit.ok
 fi

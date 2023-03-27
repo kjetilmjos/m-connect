@@ -99,6 +99,8 @@ fi
 
 # Turn off "exit on error" option
 set +e
+eval "$(ssh-agent -s)"
+ssh-add /data/m-connect/$username
 sshpass -p "$password" rsync $FILE_SOURCE $FILE_DESTINATION 2>&1 | tee /tmp/rsync.log
 RSYNC_EXIT_STATUS=${PIPESTATUS[0]}
 # Turn "exit on error" option back on
