@@ -110,8 +110,14 @@ if [ $RSYNC_EXIT_STATUS -eq 0 ]; then
     bashio::log.info
     bashio::log.info "Backup synchronized successfully to m-cloud"
     bashio::log.info
+    if [[ -z "$BACKUP_SLUG" || "$BACKUP_SLUG" = "null" ]]
+    then
+    bashio::log.info "Backup was not created by script and will therefore not be deleted by script"
+    rm $FILE_SOURCE
+    else
     curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" -X DELETE "http://supervisor/backups/$BACKUP_SLUG"
     rm $FILE_SOURCE
+    fi
 else
     bashio::log.error
     bashio::log.error "Backup functionality enabled, but unable to synchronize backup to m-cloud."
