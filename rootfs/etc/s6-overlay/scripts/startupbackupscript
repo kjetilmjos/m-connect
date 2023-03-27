@@ -41,6 +41,6 @@ mkdir -p /backup_cred
 mkdir -p ~/.ssh
 ssh-keygen -t ed25519 -C "$username" -f /backup_cred/$username -P ""
 # Bruk command permitted i authorized key fila: https://www.ssh.com/academy/ssh/authorized-keys-file
-#eval "$(ssh-agent -s)"
+eval "$(ssh-agent -s)"
 ssh-add /backup_cred/$username
 sshpass -p "$password" ssh-copy-id -o "StrictHostKeyChecking no" -i /backup_cred/$username $username@$host
