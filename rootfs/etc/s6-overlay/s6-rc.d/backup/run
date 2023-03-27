@@ -6,6 +6,7 @@
 declare backup_enable
 declare host
 declare username
+declare password
 backup_enable=false
 bashio::log.info "---------Backup status---------"
 
@@ -28,6 +29,9 @@ if bashio::config.has_value "server.host"; then
 fi
 if bashio::config.has_value "server.username"; then
     username=$(bashio::config "server.username")
+fi
+if bashio::config.has_value "server.password"; then
+    password=$(bashio::config "server.password")
 fi
 
 USERNAME="$username"
@@ -95,7 +99,7 @@ fi
 
 # Turn off "exit on error" option
 set +e
-rsync $FILE_SOURCE $FILE_DESTINATION 2>&1 | tee /tmp/rsync.log
+sshpass -p "$password" rsync $FILE_SOURCE $FILE_DESTINATION 2>&1 | tee /tmp/rsync.log
 RSYNC_EXIT_STATUS=${PIPESTATUS[0]}
 # Turn "exit on error" option back on
 set -e
