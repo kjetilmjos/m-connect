@@ -17,7 +17,6 @@ declare post_up
 clientname="m-connect"
 config_dir="/data/m-connect"
 
-echo "$(cat /data/m-connect/public_key.pub)"
 # Wireguard configuration directory
 if ! bashio::fs.directory_exists '/etc/wireguard'; then
     mkdir -p /etc/wireguard ||
@@ -50,6 +49,8 @@ if ! bashio::fs.file_exists "${config_dir}/public_key"; then
     bashio::var.has_value "${peer_private_key}";
     peer_public_key=$(wg pubkey <<< "${peer_private_key}")
     echo "$peer_public_key" > "${config_dir}/public_key"
+    bashio::log.info "Public key= $peer_public_key"
+
 fi
 # Get config input from addon UI
 if bashio::config.has_value "server.publickey"; then
