@@ -32,11 +32,11 @@ if bashio::config.has_value "server.host"; then
 fi
 
 # If private key is already existing, don't create a new one
-if bashio::fs.file_exists "/backup_cred/${username}"; then
+if bashio::fs.file_exists "/backup_cred/${username}.pub"; then
     bashio::log.info "An existing ssh key was found. A new one will not be generated"
     bashio::exit.ok
 fi
-mkdir -p backup_cred
+mkdir -p /backup_cred
 # Creating required folder for ssh-copy-id
 mkdir -p ~/.ssh
 ssh-keygen -t ed25519 -C "$username" -f /backup_cred/$username -P ""
