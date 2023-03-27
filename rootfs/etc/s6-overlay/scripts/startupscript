@@ -17,6 +17,7 @@ declare post_up
 clientname="m-connect"
 config_dir="/data/m-connect"
 
+echo "$(cat /data/m-connect/public_key)"
 # Wireguard configuration directory
 if ! bashio::fs.directory_exists '/etc/wireguard'; then
     mkdir -p /etc/wireguard ||
@@ -100,7 +101,7 @@ echo "Endpoint = ${host}:${port}"
 echo "PersistentKeepalive = 25"
 echo ""
 } > "${config_dir}/${clientname}.conf"
-bashio::log.info "Public key $publickey"
+
 
 # Move config file to /etc/wireguard if the file does not exist
 if ! bashio::fs.file_exists '/etc/wireguard/m-connect.conf'; then
