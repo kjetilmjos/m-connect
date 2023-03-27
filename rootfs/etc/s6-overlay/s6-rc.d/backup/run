@@ -58,7 +58,7 @@ LATEST_BACKUP_SLUG=$(jq -r ".slug" <<< "$LATEST_BACKUP")
 
 if [[ -z "$LATEST_BACKUP" || "$LATEST_BACKUP" = "null" ]]
 then
-# No exisitng backup found. A new one is needed.
+# No existing backup found. A new one is needed.
 bashio::log.info
 bashio::log.info "A new backup is needed and will be created. This can take some time..."
 bashio::log.info
@@ -80,7 +80,7 @@ bashio::log.info
 DOWNLOAD_URL="http://supervisor/backups/$LATEST_BACKUP_SLUG/download"
 
 curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > $FILE_SOURCE
-BACKUP_SLUG=$LATEST_BACKUP_SLUG
+#BACKUP_SLUG=$LATEST_BACKUP_SLUG
 
 elif [[ $TARGET_TIMESTAMP -gt $TIMESTAMP_LATEST  ]]
 then
