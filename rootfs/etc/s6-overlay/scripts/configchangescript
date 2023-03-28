@@ -1,0 +1,38 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Home Assistant Add-on: m-connect
+# Adds trusted proxy and forward for header to HA config file
+# ==============================================================================
+
+CONFIG_FILE="/config/configuration.yaml"
+
+# Check if the config file exists
+if [ ! -f "$CONFIG_FILE" ]; then
+    bashio::log.error "Config file does not exist: $CONFIG_FILE"
+    bashio::exit.nok
+fi
+
+# Check if the http section exists
+if grep -q "^http:" "$CONFIG_FILE"; then
+    # Check if trusted_proxies is already configured
+    if grep -q "trusted_proxies" "$CONFIG_FILE"; then
+        # Check if use_x_forwarded_for is missing
+        if ! grep -q "use_x_forwarded_for" "$CONFIG_FILE"; then
+            sed -i '/trusted_proxies/a \  use_x_forwarded_for: true' "$CONFIG_FILE"
+            bashio::log.info "Added use_x_forwarded_for: true under http section"
+        fi
+    else
+        # Add trusted_proxies and use_x_forwarded_for
+        sed -i '/http:/a \  trusted_proxies:\n    - 172.30.33.0/24\n  use_x_forwarded_for: true' "$CONFIG_FILE"
+        bashio::log.info "Added trusted_proxies and use_x_forwarded_for under http section"
+    fi
+else
+    # Add http, trusted_proxies and use_x_forwarded_for
+    echo "http:" >> "$CONFIG_FILE"
+    echo "  trusted_proxies:" >> "$CONFIG_FILE"
+    echo "    - 172.30.33.0/24" >> "$CONFIG_FILE"
+    echo "  use_x_forwarded_for: true" >> "$CONFIG_FILE"
+    bashio::log.info "Added http, trusted_proxies and use_x_forwarded_for sections"
+fi
+
+bashio::exit.ok
