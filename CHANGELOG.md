@@ -1,3 +1,7 @@
+## 2023.3.5
+
+- The addon will now update the HA configuration file with the correct http settings.
+
 ## 2023.3.4
 
 - Added ssh login and synchronization of backup

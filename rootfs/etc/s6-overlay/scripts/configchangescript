@@ -14,17 +14,25 @@ fi
 
 # Check if the http section exists
 if grep -q "^http:" "$CONFIG_FILE"; then
-    # Check if trusted_proxies is already configured
-    if grep -q "trusted_proxies" "$CONFIG_FILE"; then
-        # Check if use_x_forwarded_for is missing
-        if ! grep -q "use_x_forwarded_for" "$CONFIG_FILE"; then
-            sed -i '/trusted_proxies/a \  use_x_forwarded_for: true' "$CONFIG_FILE"
-            bashio::log.info "Added use_x_forwarded_for: true under http section"
-        fi
+    # Check if use_x_forwarded_for is missing
+    if ! grep -q "use_x_forwarded_for" "$CONFIG_FILE"; then
+        sed -i '/http:/a \  use_x_forwarded_for: true' "$CONFIG_FILE"
+        bashio::log.info "Added use_x_forwarded_for: true under http section"
+        bashio::log.warning "You need to manually restart Home Assistant for this change to take effect"
+    fi
+
+    # Check if trusted_proxies is missing
+    if ! grep -q "trusted_proxies" "$CONFIG_FILE"; then
+        sed -i '/http:/a \  trusted_proxies:\n    - 172.30.33.0/24' "$CONFIG_FILE"
+        bashio::log.info "Added trusted_proxies under http section"
+        bashio::log.warning "You need to manually restart Home Assistant for this change to take effect"
     else
-        # Add trusted_proxies and use_x_forwarded_for
-        sed -i '/http:/a \  trusted_proxies:\n    - 172.30.33.0/24\n  use_x_forwarded_for: true' "$CONFIG_FILE"
-        bashio::log.info "Added trusted_proxies and use_x_forwarded_for under http section"
+        # Check if 172.30.33.0/24 is missing from trusted_proxies
+        if ! grep -q "172.30.33.0/24" "$CONFIG_FILE"; then
+            sed -i '/trusted_proxies:/a \    - 172.30.33.0/24' "$CONFIG_FILE"
+            bashio::log.info "Added 172.30.33.0/24 to trusted_proxies"
+            bashio::log.warning "You need to manually restart Home Assistant for this change to take effect"
+        fi
     fi
 else
     # Add http, trusted_proxies and use_x_forwarded_for
@@ -33,6 +41,7 @@ else
     echo "    - 172.30.33.0/24" >> "$CONFIG_FILE"
     echo "  use_x_forwarded_for: true" >> "$CONFIG_FILE"
     bashio::log.info "Added http, trusted_proxies and use_x_forwarded_for sections"
+    bashio::log.warning "You need to manually restart Home Assistant for this change to take effect"
 fi
 
 bashio::exit.ok

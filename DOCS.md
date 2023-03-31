@@ -62,8 +62,7 @@ The password obtained from the m-cloud server
 
 # Usage instructions
 
-After you have configured the addon and the server you need to edit configuration.yaml in home assistant to allow traffic coming in from the addon.
-Add this to configuration.yaml and restart Home Assistant
+The addon will add this section automaticly. Make sure you manually restart HA if this is not already set.
 
 ```yaml
 http:
