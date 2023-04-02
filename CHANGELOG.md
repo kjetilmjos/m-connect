@@ -1,3 +1,7 @@
+## 2023.3.6
+
+- Fixed issue with persistent storage for ssh id
+
 ## 2023.3.5
 
 - The addon will now update the HA configuration file with the correct http settings.
