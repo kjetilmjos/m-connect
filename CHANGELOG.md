@@ -1,3 +1,7 @@
+## 2023.3.7
+
+- Display public key on startup
+
 ## 2023.3.6
 
 - Fixed issue with persistent storage for ssh id
