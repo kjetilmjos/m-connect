@@ -43,7 +43,7 @@ if ! bashio::fs.file_exists "${config_dir}/private_key"; then
 fi
 peer_private_key=$(<"${config_dir}/private_key")
 
-# Get the public key if not exists
+# Get the public, create key if not exists
 if ! bashio::fs.file_exists "${config_dir}/public_key"; then
     peer_public_key=""
     bashio::var.has_value "${peer_private_key}";
@@ -112,3 +112,5 @@ fi
 # Store for the status API based on interface name
 echo -n "${clientname}" > "/var/lib/wireguard/m-connect"
 
+pubkey=$(cat "${config_dir}/public_key")
+bashio::log.info "The public key is: $pubkey"
