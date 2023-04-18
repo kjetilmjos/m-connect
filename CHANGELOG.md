@@ -1,3 +1,7 @@
+## 2023.4.2
+
+- Backup path and server ip update
+
 ## 2023.4.1
 
 - Sshpass fix
