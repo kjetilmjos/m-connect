@@ -44,7 +44,7 @@ TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the 
 
 
 # Check the file on the m-cloud server. If it's newer than the backup intervall exit the script and try again.
-fileinfo=$(ssh $USERNAME@$host "stat -c %y /m-connect/$USERNAME.tar")
+fileinfo=$(sshpass -p "$password" ssh $USERNAME@$host "stat -c %y /m-connect/$USERNAME.tar")
 newdate=$(date -d "$fileinfo" +%s)
 
 if [ $? -ne 0 ]; then
