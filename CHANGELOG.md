@@ -1,3 +1,8 @@
+## 2023.4.1
+
+- Sshpass fix
+- Sleep interval on wireguard status set to 365 days
+
 ## 2023.4.0
 
 - The script will now check timestamp on latest backup file on server and not create a new backup if an older one exists on the server.

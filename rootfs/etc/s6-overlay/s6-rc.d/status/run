@@ -3,7 +3,7 @@
 # Home Assistant Community Add-on: WireGuard
 # Shows current WireGuard status
 # ==============================================================================
-sleep 60
+sleep 365d
 bashio::log.info
 bashio::log.info "---------Current WireGuard status---------"
 
