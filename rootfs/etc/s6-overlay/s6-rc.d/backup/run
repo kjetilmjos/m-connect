@@ -38,14 +38,33 @@ USERNAME="$username"
 FILE_DESTINATION="$USERNAME@$host:/m-connect/$USERNAME"
 FILE_SOURCE="/home/$USERNAME.tar"
 
+#Find timestamp
+CURRENT_TIMESTAMP=$(date +%s)  # get the current timestamp in seconds since Unix epoch
+TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
+
+
+# Check the file on the m-cloud server. If it's newer than the backup intervall exit the script and try again.
+fileinfo=$(ssh $USERNAME@$host "stat -c %y /m-connect/$USERNAME.tar")
+newdate=$(date -d "$fileinfo" +%s)
+
+if [ $? -ne 0 ]; then
+    bashio::log.warning "Remote backup file not found on m-cloud server. There could be an error or this is the first time the backup script is started."
+else
+bashio::log.info "Timestamp of backup file stored on m-cloud server: $fileinfo"
+if [ $TARGET_TIMESTAMP -lt $newdate ]; then
+    bashio::log.info "File on m-cloud server is newer than backup creation target. Script will sleep for one day and check again"
+    sleep 1d
+    bashio::exit.ok
+else
+bashio::log.info "File on m-cloud server is not newer than backup creation target. A new one should be created."
+fi
+fi
+
+
 # Get the supervisor token from os environment
 SUPER_TOKEN=${SUPERVISOR_TOKEN}
 AllBackups=$(curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" http://supervisor/backups/info)
 #{"result": "ok", "data": {"backups": [{"slug": "1cf71bc8", "name": "March 19, 2023", "date": "2023-03-19T10:48:49.318177+00:00", "type": "partial", "size": 0.01, "protected": false, "compressed": true, "content": {"homeassistant": false, "addons": [], "folders": []}}, {"slug": "04ae5d15", "name": "", "date": "2023-03-11T12:16:56.579912+00:00", "type": "full", "size": 37.88, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}, {"slug": "9aafc5d0", "name": "", "date": "2023-03-11T12:06:27.216771+00:00", "type": "full", "size": 37.88, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}, {"slug": "64db2fba", "name": "", "date": "2023-03-11T12:27:25.780668+00:00", "type": "full", "size": 37.88, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}, {"slug": "e421a9ce", "name": "", "date": "2023-03-11T11:55:57.916416+00:00", "type": "full", "size": 37.88, "protected": false, "compressed": true, "content": {"homeassistant": true, "addons": ["ae6e943c_remote_api", "local_m_connect"], "folders": ["share", "addons/local", "ssl", "media"]}}], "days_until_stale": 30}}
-
-#Find timestamp
-CURRENT_TIMESTAMP=$(date +%s)  # get the current timestamp in seconds since Unix epoch
-TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
 
 # Get the slug of the newest FULL backup type
 jq_command='.data.backups
@@ -100,8 +119,7 @@ fi
 
 # Turn off "exit on error" option
 set +e
-#eval "$(ssh-agent -s)"
-#ssh-add /data/m-connect/$username
+
 sshpass -p "$password" rsync $FILE_SOURCE $FILE_DESTINATION 2>&1 | tee /tmp/rsync.log
 RSYNC_EXIT_STATUS=${PIPESTATUS[0]}
 # Turn "exit on error" option back on
