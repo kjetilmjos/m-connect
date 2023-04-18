@@ -7,9 +7,10 @@ declare backup_enable
 declare host
 declare username
 declare password
+declare m_cloud_server_ip
 backup_enable=false
 bashio::log.info "---------Backup status---------"
-
+m_cloud_server_ip="10.170.204.1"
 # Get config input from addon UI
 if bashio::config.has_value "server.enable_backup"; then
     backup_enable=$(bashio::config "server.enable_backup")
@@ -44,7 +45,11 @@ TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the 
 
 
 # Check the file on the m-cloud server. If it's newer than the backup intervall exit the script and try again.
-fileinfo=$(sshpass -p "$password" ssh $USERNAME@$host "stat -c %y /m-connect/$USERNAME.tar")
+# Turn off "exit on error" option
+set +e
+fileinfo=$(sshpass -p "$password" ssh $USERNAME@$m_cloud_server_ip "stat -c %y /m-connect/$USERNAME/$USERNAME.tar")
+# Turn off "exit on error" option
+set +e
 newdate=$(date -d "$fileinfo" +%s)
 
 if [ $? -ne 0 ]; then
