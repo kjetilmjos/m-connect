@@ -113,4 +113,4 @@ fi
 echo -n "${clientname}" > "/var/lib/wireguard/m-connect"
 
 pubkey=$(cat "${config_dir}/public_key")
-bashio::log.info "The public key is: $pubkey"
+bashio::log.info "The wireguard public key is: $pubkey"
