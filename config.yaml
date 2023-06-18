@@ -1,6 +1,6 @@
 name: "m-connect"
 description: "Wireguard client for reverse proxy in cloud setup"
-version: "2023.6.3"
+version: "2023.6.4"
 slug: "m_connect"
 init: false
 url: https://github.com/kjetilmjos/m-connect
@@ -29,7 +29,6 @@ options:
     tunnelip: inputtunnelIP
     enable_backup: false
     username: username
-    password: password
 
 schema:
   server:
@@ -39,4 +38,3 @@ schema:
     tunnelip: str
     enable_backup: bool
     username: str
-    password: str

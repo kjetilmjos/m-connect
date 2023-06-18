@@ -1,3 +1,6 @@
+## 2023.6.4
+
+- Removed password from config file as this is not needed anymore due to key login instead
 ## 2023.6.3
 
 - Sorted out issue with known hosts file and persistent storage
