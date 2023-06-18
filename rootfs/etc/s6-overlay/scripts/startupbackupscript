@@ -38,13 +38,13 @@ fi
 
 mkdir -p /data/backup_cred
 # Creating required folder for ssh-copy-id
-#mkdir -p ~/.ssh
+mkdir -p ~/.ssh
 ssh-keygen -t ed25519 -C "$username" -f /data/backup_cred/$username -P ""
 # Bruk command permitted i authorized key fila: https://www.ssh.com/academy/ssh/authorized-keys-file
 eval "$(ssh-agent -s)"
 ssh-add /data/backup_cred/$username
 #sshpass -p "$password" ssh-copy-id -o "StrictHostKeyChecking no" -i /data/backup_cred/$username $username@$host
-ssh-keyscan -H 10.170.204.1 >> ~/.ssh/known_hosts
 
+#Print the SSH public key
 pubkey=$(cat "/data/backup_cred/$username.pub")
 bashio::log.info "The ssh public key is: $pubkey"
