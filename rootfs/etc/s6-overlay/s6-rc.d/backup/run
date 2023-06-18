@@ -43,7 +43,7 @@ TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the 
 # Check the file on the m-cloud server. If it's newer than the backup intervall exit the script and try again after the delay.
 # Turn off "exit on error" option
 set +e
-fileinfo=$(ssh $USERNAME@$m_cloud_server_ip -i /data/backup_cred/$USERNAME "stat -c %y /m-connect/$USERNAME/$USERNAME.tar")
+fileinfo=$(ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" stat -c %y "/m-connect/$USERNAME/$USERNAME.tar")
 # Turn on "exit on error" option
 set -e
 newdate=$(date -d "$fileinfo" +%s)
