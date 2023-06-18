@@ -1,3 +1,11 @@
+## 2023.6.3
+
+- Sorted out issue with known hosts file and persistent storage
+
+## 2023.6.2
+
+- Quote fixing in timestamp command
+
 ## 2023.6.1
 
 - Fixing ssh issues and updating rsynch command

@@ -10,6 +10,7 @@ backup_enable=false
 bashio::log.info "---------Backup status---------"
 
 m_cloud_server_ip="10.170.204.1"
+
 # Get config input from addon UI
 if bashio::config.has_value "server.enable_backup"; then
     backup_enable=$(bashio::config "server.enable_backup")
@@ -39,6 +40,11 @@ FILE_SOURCE="/home/$USERNAME.tar"
 #Find timestamp
 CURRENT_TIMESTAMP=$(date +%s)  # get the current timestamp in seconds since Unix epoch
 TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
+#TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 3600 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
+
+#Add to known host list
+mkdir -p ~/.ssh
+ssh-keyscan -H $m_cloud_server_ip >> ~/.ssh/known_hosts
 
 # Check the file on the m-cloud server. If it's newer than the backup intervall exit the script and try again after the delay.
 # Turn off "exit on error" option
@@ -127,7 +133,7 @@ set -e
 
 if [ $RSYNC_EXIT_STATUS -eq 0 ]; then
     bashio::log.info
-    bashio::log.info "Backup synchronized successfully to m-cloud"
+    bashio::log.info "Backup synchronized successfully to m-cloud. Local backup on Home assistant will be deleted."
     bashio::log.info
     if [[ -z "$BACKUP_SLUG" || "$BACKUP_SLUG" = "null" ]]
     then
