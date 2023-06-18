@@ -3,7 +3,6 @@
 # Home Assistant Add-on: m-connect
 # Creates the backup configuration
 # ==============================================================================
-declare backup_enable
 declare username
 #backup_enable=true
 
@@ -45,6 +44,7 @@ ssh-keygen -t ed25519 -C "$username" -f /data/backup_cred/$username -P ""
 eval "$(ssh-agent -s)"
 ssh-add /data/backup_cred/$username
 #sshpass -p "$password" ssh-copy-id -o "StrictHostKeyChecking no" -i /data/backup_cred/$username $username@$host
+ssh-keyscan -H 10.170.204.1 >> ~/.ssh/known_hosts
 
 pubkey=$(cat "/data/backup_cred/$username.pub")
 bashio::log.info "The ssh public key is: $pubkey"

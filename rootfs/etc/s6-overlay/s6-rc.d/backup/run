@@ -4,7 +4,6 @@
 # Runs backup tasks
 # ==============================================================================
 declare backup_enable
-declare host
 declare username
 declare m_cloud_server_ip
 backup_enable=false
@@ -25,9 +24,6 @@ if [[ $backup_enable = false ]]; then
     sleep 365d
 fi
 
-if bashio::config.has_value "server.host"; then
-    host=$(bashio::config "server.host")
-fi
 if bashio::config.has_value "server.username"; then
     username=$(bashio::config "server.username")
 fi
@@ -37,7 +33,7 @@ pubkey=$(cat "/data/backup_cred/$username.pub")
 bashio::log.info "The ssh public key is: $pubkey"
 
 USERNAME="$username"
-FILE_DESTINATION="$USERNAME@$host:/m-connect/$USERNAME"
+FILE_DESTINATION="$USERNAME@$m_cloud_server_ip:/m-connect/$USERNAME"
 FILE_SOURCE="/home/$USERNAME.tar"
 
 #Find timestamp
@@ -47,7 +43,7 @@ TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the 
 # Check the file on the m-cloud server. If it's newer than the backup intervall exit the script and try again after the delay.
 # Turn off "exit on error" option
 set +e
-fileinfo=$(ssh $USERNAME@$m_cloud_server_ip "stat -c %y /m-connect/$USERNAME/$USERNAME.tar")
+fileinfo=$(ssh $USERNAME@$m_cloud_server_ip -i /data/backup_cred/$USERNAME "stat -c %y /m-connect/$USERNAME/$USERNAME.tar")
 # Turn on "exit on error" option
 set -e
 newdate=$(date -d "$fileinfo" +%s)
@@ -80,6 +76,7 @@ LATEST_BACKUP=$(jq -r "$jq_command" <<< "$AllBackups")
 LATEST_BACKUP_SLUG=$(jq -r ".slug" <<< "$LATEST_BACKUP")
 
 if [[ -z "$LATEST_BACKUP" || "$LATEST_BACKUP" = "null" ]]
+
 then
 # No existing backup found. A new one is needed.
 bashio::log.info
@@ -123,8 +120,7 @@ fi
 
 # Turn off "exit on error" option
 set +e
-
-rsync $FILE_SOURCE $FILE_DESTINATION 2>&1 | tee /tmp/rsync.log
+rsync -e "ssh -i /data/backup_cred/$USERNAME" $FILE_SOURCE $FILE_DESTINATION 2>&1 | tee /tmp/rsync.log
 RSYNC_EXIT_STATUS=${PIPESTATUS[0]}
 # Turn "exit on error" option back on
 set -e
