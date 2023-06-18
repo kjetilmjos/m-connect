@@ -1,9 +1,13 @@
+## 2023.6.1
+
+- Fixing ssh issues and updating rsynch command
+
 ## 2023.6.0
 
 - Changed SSH login to only create a key, not adding via ssh-copy-id
 - Changed storage path to persisten storage for ssh pubkey
 - Always create ssh keys even if the backup function is disabled
-  
+
 ## 2023.4.2
 
 - Backup path and server ip update
