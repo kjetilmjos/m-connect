@@ -32,6 +32,8 @@ fi
 # Wireguard configuration directory
 if bashio::fs.directory_exists '/data/backup_cred'; then
     bashio::log.info "An existing ssh key was found. A new one will not be generated"
+    pubkey=$(cat "/data/backup_cred/$username.pub")
+    bashio::log.info "The ssh public key is: $pubkey"
     bashio::exit.ok
 fi
 
