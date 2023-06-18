@@ -5,30 +5,22 @@
 # ==============================================================================
 declare backup_enable
 declare username
-declare password
-declare host
-backup_enable=false
+#backup_enable=true
 
 # Get config input from addon UI
-if bashio::config.has_value "server.enable_backup"; then
-    backup_enable=$(bashio::config "server.enable_backup")
-fi
+#if bashio::config.has_value "server.enable_backup"; then
+#    backup_enable=$(bashio::config "server.enable_backup")
+#fi
 #bashio::exit.die_if_false $backup_enable "Backup is disabled. Backup startup script will stop"
-if [[ $backup_enable = false ]]; then
-    bashio::log.warning
-    bashio::log.warning "Backup is disabled. Backup startup script will exit"
-    bashio::log.warning
-    bashio::exit.ok
-fi
+#if [[ $backup_enable = false ]]; then
+#    bashio::log.warning
+#    bashio::log.warning "Backup is disabled. Backup startup script will exit"
+#    bashio::log.warning
+#    bashio::exit.ok
+#fi
 
 if bashio::config.has_value "server.username"; then
     username=$(bashio::config "server.username")
-fi
-if bashio::config.has_value "server.password"; then
-    password=$(bashio::config "server.password")
-fi
-if bashio::config.has_value "server.host"; then
-    host=$(bashio::config "server.host")
 fi
 
 # If private key is already existing, don't create a new one
@@ -40,14 +32,19 @@ fi
 # Wireguard configuration directory
 if bashio::fs.directory_exists '/data/backup_cred'; then
     bashio::log.info "An existing ssh key was found. A new one will not be generated"
+    pubkey=$(cat "/data/backup_cred/$username.pub")
+    bashio::log.info "The ssh public key is: $pubkey"
     bashio::exit.ok
 fi
 
 mkdir -p /data/backup_cred
 # Creating required folder for ssh-copy-id
-mkdir -p ~/.ssh
+#mkdir -p ~/.ssh
 ssh-keygen -t ed25519 -C "$username" -f /data/backup_cred/$username -P ""
 # Bruk command permitted i authorized key fila: https://www.ssh.com/academy/ssh/authorized-keys-file
 eval "$(ssh-agent -s)"
 ssh-add /data/backup_cred/$username
-sshpass -p "$password" ssh-copy-id -o "StrictHostKeyChecking no" -i /data/backup_cred/$username $username@$host
+#sshpass -p "$password" ssh-copy-id -o "StrictHostKeyChecking no" -i /data/backup_cred/$username $username@$host
+
+pubkey=$(cat "/data/backup_cred/$username.pub")
+bashio::log.info "The ssh public key is: $pubkey"
