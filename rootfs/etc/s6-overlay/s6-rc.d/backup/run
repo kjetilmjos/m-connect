@@ -44,8 +44,8 @@ TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the 
 
 #Add to known host list
 mkdir -p ~/.ssh
-ssh-keyscan -H $m_cloud_server_ip >> ~/.ssh/known_hosts
-
+#ssh-keyscan -H $m_cloud_server_ip >> ~/.ssh/known_hosts
+ssh-keygen -F $m_cloud_server_ip >/dev/null || ssh-keyscan -H $m_cloud_server_ip >> ~/.ssh/known_hosts
 # Check the file on the m-cloud server. If it's newer than the backup intervall exit the script and try again after the delay.
 # Turn off "exit on error" option
 set +e
