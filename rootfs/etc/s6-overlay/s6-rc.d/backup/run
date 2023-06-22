@@ -42,11 +42,17 @@ CURRENT_TIMESTAMP=$(date +%s)  # get the current timestamp in seconds since Unix
 TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
 #TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 3600 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
 
-#Add to known host list
-mkdir -p ~/.ssh
-#ssh-keyscan -H $m_cloud_server_ip >> ~/.ssh/known_hosts
-ssh-keygen -F $m_cloud_server_ip >/dev/null || ssh-keyscan -H $m_cloud_server_ip >> ~/.ssh/known_hosts
-# Check the file on the m-cloud server. If it's newer than the backup intervall exit the script and try again after the delay.
+
+# Check if known hosts file exists. If it does add data to it if does not create directory and file and add data
+if ! bashio::fs.file_exists '~/.ssh/known_hosts'; then
+    ssh-keygen -F $m_cloud_server_ip >/dev/null || ssh-keyscan -H $m_cloud_server_ip >> ~/.ssh/known_hosts
+else
+    #Add to known host list
+    mkdir -p ~/.ssh
+    #ssh-keyscan -H $m_cloud_server_ip >> ~/.ssh/known_hosts
+    ssh-keygen -F $m_cloud_server_ip >/dev/null || ssh-keyscan -H $m_cloud_server_ip >> ~/.ssh/known_hosts
+fi
+
 # Turn off "exit on error" option
 set +e
 fileinfo=$(ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" stat -c %y "/m-connect/$USERNAME/$USERNAME.tar")
@@ -54,6 +60,7 @@ fileinfo=$(ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" s
 set -e
 newdate=$(date -d "$fileinfo" +%s)
 
+# Check the file on the m-cloud server. If it's newer than the backup intervall exit the script and try again after the delay.
 if [ $? -ne 0 ]; then
     bashio::log.warning "Remote backup file not found on m-cloud server. There could be an error or this is the first time the backup script is started."
 else
