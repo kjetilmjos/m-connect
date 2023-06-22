@@ -44,7 +44,7 @@ TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the 
 
 
 # Check if known hosts file exists. If it does add data to it if does not create directory and file and add data
-if ! bashio::fs.file_exists '~/.ssh/known_hosts'; then
+if bashio::fs.file_exists '~/.ssh/known_hosts'; then
     ssh-keygen -F $m_cloud_server_ip >/dev/null || ssh-keyscan -H $m_cloud_server_ip >> ~/.ssh/known_hosts
 else
     #Add to known host list
