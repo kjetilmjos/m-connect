@@ -1,3 +1,6 @@
+## 2023.6.8
+
+- Created know hosts file using touch
 ## 2023.6.7
 
 - Fixed bug on known host file checker
