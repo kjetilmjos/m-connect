@@ -50,6 +50,8 @@ else
     #Add to known host list
     mkdir -p ~/.ssh
     #ssh-keyscan -H $m_cloud_server_ip >> ~/.ssh/known_hosts
+
+    touch ~/.ssh/known_hosts
     ssh-keygen -F $m_cloud_server_ip >/dev/null || ssh-keyscan -H $m_cloud_server_ip >> ~/.ssh/known_hosts
 fi
 
