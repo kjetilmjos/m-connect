@@ -1,3 +1,6 @@
+## 2023.6.6
+
+- Improved known hosts file creation logic
 ## 2023.6.5
 
 - Improved known hosts command.
