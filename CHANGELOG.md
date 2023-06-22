@@ -1,3 +1,6 @@
+## 2023.6.7
+
+- Fixed bug on known host file checker
 ## 2023.6.6
 
 - Improved known hosts file creation logic
