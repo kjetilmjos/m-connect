@@ -57,22 +57,26 @@ fi
 
 # Turn off "exit on error" option
 set +e
-fileinfo=$(ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" stat -c %y "/m-connect/$USERNAME/$USERNAME.tar")
+if [ ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" -f "/m-connect/$USERNAME/$USERNAME.tar" ]; then
+    bashio::log.info "File exists"
+    fileinfo=$(ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" stat -c %y "/m-connect/$USERNAME/$USERNAME.tar")
+else
+    bashio::log.info "File does NOT exists, new backup will be uploaded"
+    fileinfo="2000-00-00 12:00:00.000000000 +0000"
+fi
+
 # Turn on "exit on error" option
 set -e
 newdate=$(date -d "$fileinfo" +%s)
 
 # Check the file on the m-cloud server. If it's newer than the backup intervall exit the script and try again after the delay.
-if [ $? -ne 0 ]; then
-    bashio::log.warning "Remote backup file not found on m-cloud server. There could be an error or this is the first time the backup script is started."
-else
 bashio::log.info "Timestamp of backup file stored on m-cloud server: $fileinfo"
 if [ $TARGET_TIMESTAMP -lt $newdate ]; then
     bashio::log.info "File on m-cloud server is newer than backup creation target. Script will sleep for one day and check again"
     sleep 1d
     bashio::exit.ok
 else
-bashio::log.info "File on m-cloud server is not newer than backup creation target. A new one should be created."
+bashio::log.info "File on m-cloud server is NOT newer than backup creation target. A new one should be created."
 fi
 fi
 
