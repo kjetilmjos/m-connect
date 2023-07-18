@@ -1,3 +1,6 @@
+## 2023.7.3
+- Fixed issue with extra fi statement
+
 ## 2023.7.2
 - Fixed issue with empty file when starting first time bug4
 
