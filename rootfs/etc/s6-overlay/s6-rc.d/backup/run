@@ -57,8 +57,10 @@ fi
 
 # Turn off "exit on error" option
 set +e
-filestatexisting=$(ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" -f "/m-connect/$USERNAME/$USERNAME.tar")
-if [ filestatexisting ]; then
+#filestatexisting=$(ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" -f "/m-connect/$USERNAME/$USERNAME.tar")
+filestatexisting=$(ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" "test -e \"/m-connect/$USERNAME/$USERNAME.tar\" && echo 'File exists'")
+
+if [ "$filestatexisting" ]; then
     bashio::log.info "File exists"
     fileinfo=$(ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" stat -c %y "/m-connect/$USERNAME/$USERNAME.tar")
 else
