@@ -81,7 +81,7 @@ if [ $TARGET_TIMESTAMP -lt $newdate ]; then
 else
 bashio::log.info "File on m-cloud server is NOT newer than backup creation target. A new one should be created."
 fi
-fi
+
 
 # Get the supervisor token from os environment
 SUPER_TOKEN=${SUPERVISOR_TOKEN}
@@ -97,9 +97,7 @@ jq_command='.data.backups
 LATEST_BACKUP=$(jq -r "$jq_command" <<< "$AllBackups")
 LATEST_BACKUP_SLUG=$(jq -r ".slug" <<< "$LATEST_BACKUP")
 
-if [[ -z "$LATEST_BACKUP" || "$LATEST_BACKUP" = "null" ]]
-
-then
+if [[ -z "$LATEST_BACKUP" || "$LATEST_BACKUP" = "null" ]]; then
 # No existing backup found. A new one is needed.
 bashio::log.info
 bashio::log.info "A new backup is needed and will be created. This can take some time..."
@@ -114,8 +112,7 @@ else
 DATE_LATEST=$(jq -r '.date' <<< "$LATEST_BACKUP")
 TIMESTAMP_LATEST=$(date -d $DATE_LATEST +%s)
 
-if [[ $TIMESTAMP_LATEST -gt $TARGET_TIMESTAMP ]]
-then
+if [[ $TIMESTAMP_LATEST -gt $TARGET_TIMESTAMP ]]; then
 bashio::log.info
 bashio::log.info "An exisiting backup is newer than created by the script. The manual created backup will be synched."
 bashio::log.info
@@ -125,8 +122,7 @@ curl -sSL -H "Authorization: Bearer $SUPER_TOKEN" "$DOWNLOAD_URL" > $FILE_SOURCE
 #BACKUP_SLUG=$LATEST_BACKUP_SLUG
 BACKUP_SLUG=""
 
-elif [[ $TARGET_TIMESTAMP -gt $TIMESTAMP_LATEST  ]]
-then
+elif [[ $TARGET_TIMESTAMP -gt $TIMESTAMP_LATEST  ]]; then
 # Existing backup is older than timestamp.
 bashio::log.info
 bashio::log.info "A new backup is needed and will be created. This can take some time..."
