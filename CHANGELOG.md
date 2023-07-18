@@ -1,3 +1,6 @@
+## 2023.6.10
+- Fixed issue with empty file when starting first time bug
+
 ## 2023.6.9
 - Fixed issue with empty file when starting first time
 
