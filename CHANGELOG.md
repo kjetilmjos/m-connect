@@ -1,6 +1,6 @@
 ## 2023.6.9
 - Fixed issue with empty file when starting first time
-- 
+
 ## 2023.6.8
 
 - Created know hosts file using touch

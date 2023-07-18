@@ -57,12 +57,13 @@ fi
 
 # Turn off "exit on error" option
 set +e
-if [ ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" -f "/m-connect/$USERNAME/$USERNAME.tar" ]; then
+filestatexisting=$(ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" -f "/m-connect/$USERNAME/$USERNAME.tar")
+if [ filestatexisting]; then
     bashio::log.info "File exists"
     fileinfo=$(ssh "$USERNAME@$m_cloud_server_ip" -i "/data/backup_cred/$USERNAME" stat -c %y "/m-connect/$USERNAME/$USERNAME.tar")
 else
     bashio::log.info "File does NOT exists, new backup will be uploaded"
-    fileinfo="2000-00-00 12:00:00.000000000 +0000"
+    fileinfo="2000-01-01 12:01:01.000000000 +0000"
 fi
 
 # Turn on "exit on error" option
