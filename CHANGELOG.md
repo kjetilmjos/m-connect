@@ -1,3 +1,6 @@
+## 2023.7.4
+- Changed default backup time to 1 week interval
+  
 ## 2023.7.3
 - Fixed issue with extra fi statement
 
