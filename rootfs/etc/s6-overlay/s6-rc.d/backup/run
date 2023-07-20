@@ -39,9 +39,8 @@ FILE_SOURCE="/home/$USERNAME.tar"
 
 #Find timestamp
 CURRENT_TIMESTAMP=$(date +%s)  # get the current timestamp in seconds since Unix epoch
-TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
-#TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 3600 ))  # subtract 23 hours from the current timestamp. To make sure the backup creation time is accounted for.
-
+#TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 82800 ))  # [One day] subtract 1 hours from the current timestamp. To make sure the backup creation time is accounted for.
+TARGET_TIMESTAMP=$(( CURRENT_TIMESTAMP - 601200 ))  # [One week] subtract 1 hours from the current timestamp. To make sure the backup creation time is accounted for.
 
 # Check if known hosts file exists. If it does add data to it if does not create directory and file and add data
 if bashio::fs.file_exists '~/.ssh/known_hosts'; then
