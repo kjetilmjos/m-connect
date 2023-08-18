@@ -1,6 +1,6 @@
 name: "m-connect"
 description: "Wireguard client for reverse proxy in cloud setup"
-version: "2023.7.4"
+version: "2023.8.0"
 slug: "m_connect"
 init: false
 url: https://github.com/kjetilmjos/m-connect

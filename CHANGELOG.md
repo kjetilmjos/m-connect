@@ -1,3 +1,6 @@
+## 2023.8.0
+- Improved ssh key generation to make sure a new one is generated if a new username is inputted.
+  
 ## 2023.7.4
 - Changed default backup time to 1 week interval
   
