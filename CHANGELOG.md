@@ -1,3 +1,6 @@
+## 2024.10.0
+- Changed wireguard PostUp and PostDown to use nftable instead of legacy iptables command.
+
 ## 2023.8.0
 - Improved ssh key generation to make sure a new one is generated if a new username is inputted.
   

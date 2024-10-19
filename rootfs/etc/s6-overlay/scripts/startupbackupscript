@@ -30,7 +30,6 @@ if bashio::fs.directory_exists '/data/backup_cred'; then
 else
     mkdir -p /data/backup_cred
     # Creating required folder for ssh-copy-id
-    #mkdir -p ~/.ssh
     ssh-keygen -t ed25519 -C "$username" -f /data/backup_cred/$username -P ""
     # Use command permitted i authorized key fila: https://www.ssh.com/academy/ssh/authorized-keys-file
     eval "$(ssh-agent -s)"
