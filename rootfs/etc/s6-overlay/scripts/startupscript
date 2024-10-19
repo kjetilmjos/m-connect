@@ -82,7 +82,7 @@ if [[ $(</proc/sys/net/ipv4/ip_forward) -eq 0 ]]; then
 fi
 
 # The post up lines are needed for the addon to access Home Assistant core container
-post_up="nft add table ip nat; nft add chain ip nat PREROUTING { type nat hook prerouting priority 0 \; }; nft add chain ip nat POSTROUTING { type nat hook postrouting priority 100 \; }; nft add rule ip nat PREROUTING ip daddr 0.0.0.0/0 dnat to 172.30.32.1; nft add rule ip nat POSTROUTING ip saddr 172.30.32.1 masquerade"
+post_up="nft add rule ip nat PREROUTING dnat to 172.30.32.1;nft add rule ip nat POSTROUTING masquerade"
 post_down="nft flush table ip nat; nft delete table ip nat"
 
 # Write full config file.
