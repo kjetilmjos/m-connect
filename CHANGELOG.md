@@ -1,4 +1,5 @@
 ## 2024.10.0
+- Added nft package for managing network rules
 - Changed wireguard PostUp and PostDown to use nftable instead of legacy iptables command.
 
 ## 2023.8.0

@@ -9,6 +9,7 @@ RUN \
     rsync \
     nano \
     jq \
+    nftables \
     coreutils
 
 COPY rootfs /
